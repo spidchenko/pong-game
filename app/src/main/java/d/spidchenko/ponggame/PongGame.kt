@@ -1,10 +1,12 @@
 package d.spidchenko.ponggame
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.Log
+import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 
@@ -20,11 +22,11 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
     private var mFontMargin: Float = 0F
 
     private lateinit var mGameThread: Thread
-    private var mPlaying = false;
+    private var mPlaying = false
     private var mPaused = true
     private var mSceneInitialized = false
 
-    //    private val mBat: Bat
+    private var mBat: Bat? = null
     private var mBall: Ball? = null
 
     private var mScore: Int = 0
@@ -71,6 +73,7 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
 
     private fun update() {
         mBall?.update(mCurrentFPS)
+        mBat?.update(mCurrentFPS)
     }
 
     private fun draw() {
@@ -78,7 +81,7 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
         if (holder.surface.isValid) {
             if (!mSceneInitialized) {
                 startNewGame()
-                mSceneInitialized = false
+                mSceneInitialized = true
             }
 
             mCanvas = holder.lockCanvas()
@@ -86,6 +89,7 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
             mPaint.color = Color.WHITE
 
             mBall?.mRect?.let { mCanvas.drawRect(it, mPaint) }
+            mBat?.mRect?.let { mCanvas.drawRect(it, mPaint) }
 
             mPaint.textSize = mFontSize
             mCanvas.drawText("Score $mScore   Lives $mTotalLives", mFontMargin, mFontSize, mPaint)
@@ -107,13 +111,34 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
 
         mBall = Ball(mScreenX)
         mBall?.reset(mScreenX, mScreenY)
+
+        mBat = Bat(mScreenX, mScreenY)
     }
 
     private fun printDebuggingText() {
         val debugFontSize = mFontSize / 2F
+        mPaint.textSize = debugFontSize
         val leftMargin = 150F
         val topMargin = 10F
         mCanvas.drawText("FPS: $mCurrentFPS", topMargin, leftMargin + debugFontSize, mPaint)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        Log.d(TAG, "onTouchEvent: ")
+        if (event != null) {
+            mBat?.setMovementState(
+                when (event.action.and(MotionEvent.ACTION_MASK)) {
+                    MotionEvent.ACTION_DOWN -> {
+                        mPaused = false
+                        if (event.x > (mScreenX / 2)) Bat.RIGHT else Bat.LEFT
+                    }
+                    MotionEvent.ACTION_UP -> Bat.STOPPED
+                    else -> null
+                }
+            )
+        }
+        return true
     }
 
     companion object {

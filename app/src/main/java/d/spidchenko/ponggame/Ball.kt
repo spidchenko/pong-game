@@ -12,9 +12,9 @@ class Ball(screenX: Int) {
     private val mBallHeight = screenX / 100F
 
     fun update(fps: Long) {
-        Log.d(TAG, "updating ball. fps=$fps xVel=$mXVelocity yVel=$mYVelocity")
-        mRect.left += mXVelocity / fps
-        mRect.top += mYVelocity / fps
+        Log.d(TAG, "updating ball. fps=$fps xVel=$mXVelocity yVel=$mYVelocity left=${mRect.left} right = ${mRect.right}")
+        mRect.left += (mXVelocity / fps)
+        mRect.top += (mYVelocity / fps)
         mRect.right = mRect.left + mBallWidth
         mRect.bottom = mRect.top + mBallHeight
     }
@@ -28,6 +28,7 @@ class Ball(screenX: Int) {
     }
 
     fun reset(x: Int, y: Int) {
+        Log.d(TAG, "reset: Ball reset")
         mRect.left = x / 2F
         mRect.top = 0F
         mRect.right = x / 2F + mBallWidth
