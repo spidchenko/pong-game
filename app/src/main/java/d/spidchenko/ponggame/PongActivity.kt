@@ -7,6 +7,10 @@ import android.widget.LinearLayout
 
 class PongActivity : Activity() {
 
+    companion object{
+        private const val TAG = "PongActivity.LOG_TAG"
+    }
+
     private lateinit var pongGame : PongGame
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,9 +24,11 @@ class PongActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        pongGame.resume()
     }
 
     override fun onPause() {
         super.onPause()
+        pongGame.pause()
     }
 }
