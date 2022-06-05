@@ -14,18 +14,24 @@ class Bat(screenX: Int, screenY: Int) {
     val mRect = RectF(mXCoord, mYCoord, mXCoord + mLength, mYCoord + mHeight)
 
     fun setMovementState(state: Int?) {
-        if (state != null){
+        if (state != null) {
             mBatMoving = state
         }
     }
 
     fun update(fps: Long) {
+
+        mXCoord = when (mBatMoving) {
+            LEFT -> mXCoord - (mBatSpeed / fps)
+            RIGHT -> mXCoord + (mBatSpeed / fps)
+            else -> mXCoord
+        }
+
         when {
-            (mBatMoving == LEFT) -> mXCoord -= mBatSpeed / fps
-            (mBatMoving == RIGHT) -> mXCoord += mBatSpeed / fps
             (mXCoord < 0) -> mXCoord = 0F
             (mXCoord + mLength > mScreenX) -> mXCoord = mScreenX - mLength
         }
+
         mRect.left = mXCoord
         mRect.right = mXCoord + mLength
     }
