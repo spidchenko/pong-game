@@ -12,19 +12,24 @@ class Ball(screenX: Int) {
     private val mBallHeight = screenX / 100F
 
     fun update(fps: Long) {
-        Log.d(TAG, "updating ball. fps=$fps xVel=$mXVelocity yVel=$mYVelocity left=${mRect.left} right = ${mRect.right}")
+        Log.d(
+            TAG,
+            "updating ball. fps=$fps xVel=$mXVelocity yVel=$mYVelocity left=${mRect.left} right = ${mRect.right}"
+        )
         mRect.left += (mXVelocity / fps)
         mRect.top += (mYVelocity / fps)
         mRect.right = mRect.left + mBallWidth
         mRect.bottom = mRect.top + mBallHeight
     }
 
-    fun reverseXVelocity() {
-        mXVelocity = -mXVelocity
-    }
-
-    fun reverseYVelocity() {
-        mYVelocity = -mYVelocity
+    fun bounceOff(direction: Int) {
+        when (direction) {
+            BOUNCE_LEFT -> mXVelocity = -abs(mXVelocity)
+            BOUNCE_RIGHT -> mXVelocity = abs(mXVelocity)
+            BOUNCE_UP -> mYVelocity = -abs(mYVelocity)
+            BOUNCE_DOWN -> mYVelocity = abs(mYVelocity)
+            else -> throw IllegalArgumentException("Unknown direction")
+        }
     }
 
     fun reset(x: Int, y: Int) {
@@ -47,17 +52,17 @@ class Ball(screenX: Int) {
         val batCenter = batPosition.centerX()
         val ballCenter = mRect.centerX()
         val relativeIntersect = batCenter - ballCenter
-
-        mXVelocity = if (relativeIntersect < 0) {
-            abs(mXVelocity)     // Go right
-        } else {
-            -abs(mXVelocity)    //Go left
-        }
-        reverseYVelocity()
+        if (relativeIntersect < 0) bounceOff(BOUNCE_RIGHT) else bounceOff(BOUNCE_LEFT)
+        bounceOff(BOUNCE_UP)
     }
 
-    companion object{
+    companion object {
         private const val TAG = "Ball.LOG_TAG"
+        const val BOUNCE_LEFT = 0
+        const val BOUNCE_RIGHT = 2
+        const val BOUNCE_UP = 3
+        const val BOUNCE_DOWN = 4
+        const val BOUNCE_FROM_BAT = 5
     }
 
 }

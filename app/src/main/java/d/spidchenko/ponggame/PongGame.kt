@@ -79,38 +79,39 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
 
     private fun detectCollisions() {
 
-        if (RectF.intersects(mBat.mRect, mBall.mRect)) {
-            mBall.batBounce(mBat.mRect)
-            mBall.increaseVelocity()
-            mScore++
-            mSoundPool.play(mBeepId, 1F, 1F, 0, 0, 1F)
-        }
+        when{
+            RectF.intersects(mBat.mRect, mBall.mRect) -> {
+                mBall.batBounce(mBat.mRect)
+                mBall.increaseVelocity()
+                mScore++
+                mSoundPool.play(mBeepId, 1F, 1F, 0, 0, 1F)
+            }
 
-        if (mBall.mRect.bottom > mScreenY) {
-            mBall.reverseYVelocity()
-            mTotalLives--
-            mSoundPool.play(mMissId, 1F, 1F,0,0, 1F)
-            if (mTotalLives == 0){
-                mPaused = true
-                startNewGame()
+            mBall.mRect.bottom > mScreenY -> {
+                mBall.bounceOff(Ball.BOUNCE_UP)
+                mTotalLives--
+                mSoundPool.play(mMissId, 1F, 1F,0,0, 1F)
+                if (mTotalLives == 0){
+                    mPaused = true
+                    startNewGame()
+                }
+            }
+
+            mBall.mRect.top < 0 -> {
+                mBall.bounceOff(Ball.BOUNCE_DOWN)
+                mSoundPool.play(mBoopId, 1F, 1F,0,0, 1F)
+            }
+
+            mBall.mRect.left < 0 -> {
+                mBall.bounceOff(Ball.BOUNCE_RIGHT)
+                mSoundPool.play(mBopId, 1F, 1F,0,0, 1F)
+            }
+
+            mBall.mRect.right >= mScreenX -> {
+                mBall.bounceOff(Ball.BOUNCE_LEFT)
+                mSoundPool.play(mBopId, 1F, 1F,0,0, 1F)
             }
         }
-
-        if (mBall.mRect.top <= 0){
-            mBall.reverseYVelocity()
-            mSoundPool.play(mBoopId, 1F, 1F,0,0, 1F)
-        }
-
-        if (mBall.mRect.left <= 0) {
-            mBall.reverseXVelocity()
-            mSoundPool.play(mBopId, 1F, 1F,0,0, 1F)
-        }
-
-        if (mBall.mRect.right >= mScreenX){
-            mBall.reverseXVelocity()
-            mSoundPool.play(mBopId, 1F, 1F,0,0, 1F)
-        }
-
     }
 
     private fun update() {
@@ -143,7 +144,7 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
         }
     }
 
-    fun initialize2D(){
+    private fun initialize2D(){
         mScreenX = mSurfaceHolder.surfaceFrame.width()
         mScreenY = mSurfaceHolder.surfaceFrame.height()
         mFontSize = mScreenX / 20F
