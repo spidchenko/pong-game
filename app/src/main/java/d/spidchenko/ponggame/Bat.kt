@@ -2,38 +2,37 @@ package d.spidchenko.ponggame
 
 import android.graphics.RectF
 
-class Bat(screenX: Int, screenY: Int) {
-    private val mScreenX = screenX
-    private val mBatSpeed = mScreenX
-    private val mLength = mScreenX / 8F
-    private val mHeight = screenY / 40F
-    private var mXCoord = screenX / 2F
-    private val mYCoord = screenY - mHeight
-    private var mBatMoving = STOPPED
+class Bat(private val screenX: Int, screenY: Int) {
+    private val batSpeed = screenX
+    private val length = screenX / 8F
+    private val height = screenY / 40F
+    private var xCoord = screenX / 2F
+    private val yCoord = screenY - height
+    private var batMoving = STOPPED
 
-    val mRect = RectF(mXCoord, mYCoord, mXCoord + mLength, mYCoord + mHeight)
+    val rect = RectF(xCoord, yCoord, xCoord + length, yCoord + height)
 
     fun setMovementState(state: Int?) {
         if (state != null) {
-            mBatMoving = state
+            batMoving = state
         }
     }
 
     fun update(fps: Long) {
 
-        mXCoord = when (mBatMoving) {
-            LEFT -> mXCoord - (mBatSpeed / fps)
-            RIGHT -> mXCoord + (mBatSpeed / fps)
-            else -> mXCoord
+        xCoord = when (batMoving) {
+            LEFT -> xCoord - (batSpeed / fps)
+            RIGHT -> xCoord + (batSpeed / fps)
+            else -> xCoord
         }
 
         when {
-            (mXCoord < 0) -> mXCoord = 0F
-            (mXCoord + mLength > mScreenX) -> mXCoord = mScreenX - mLength
+            (xCoord < 0) -> xCoord = 0F
+            (xCoord + length > screenX) -> xCoord = screenX - length
         }
 
-        mRect.left = mXCoord
-        mRect.right = mXCoord + mLength
+        rect.left = xCoord
+        rect.right = xCoord + length
     }
 
     companion object {

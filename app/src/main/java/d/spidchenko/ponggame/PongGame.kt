@@ -16,53 +16,53 @@ import java.io.IOException
 
 class PongGame(context: Context) : SurfaceView(context), Runnable {
 
-    private val mSurfaceHolder: SurfaceHolder = holder
-    private lateinit var mCanvas: Canvas
-    private val mPaint: Paint = Paint()
-    private var mCurrentFPS: Long = 0
-    private var mScreenX: Int = 0
-    private var mScreenY: Int = 0
-    private var mFontSize: Float = 0F
-    private var mFontMargin: Float = 0F
+    private val surfaceHolder: SurfaceHolder = holder
+    private lateinit var canvas: Canvas
+    private val paint: Paint = Paint()
+    private var currentFPS: Long = 0
+    private var screenX: Int = 0
+    private var screenY: Int = 0
+    private var fontSize: Float = 0F
+    private var fontMargin: Float = 0F
 
-    private lateinit var mGameThread: Thread
-    private var mPlaying = false
-    private var mPaused = true
-    private var mSceneInitialized = false
+    private lateinit var gameThread: Thread
+    private var isPlaying = false
+    private var isPaused = true
+    private var isSceneInitialized = false
 
-    private lateinit var mBat: Bat
-    private lateinit var mBall: Ball
+    private lateinit var bat: Bat
+    private lateinit var ball: Ball
 
-    private var mScore: Int = 0
-    private var mTotalLives: Int = 0
+    private var score: Int = 0
+    private var totalLives: Int = 0
 
-    private lateinit var mSoundPool: SoundPool
-    private var mBeepId: Int = 0
-    private var mBoopId: Int = 0
-    private var mBopId: Int = 0
-    private var mMissId: Int = 0
+    private lateinit var soundPool: SoundPool
+    private var beepId: Int = 0
+    private var boopId: Int = 0
+    private var bopId: Int = 0
+    private var missId: Int = 0
 
 
     fun pause() {
         Log.d(TAG, "pause")
-        mPlaying = false
-        mGameThread.join()
+        isPlaying = false
+        gameThread.join()
     }
 
     fun resume() {
         Log.d(TAG, "resume")
-        mPlaying = true
+        isPlaying = true
         // TODO Need to use Kotlin coroutines instead of Threads
-        mGameThread = Thread(this)
-        mGameThread.start()
+        gameThread = Thread(this)
+        gameThread.start()
     }
 
 
     override fun run() {
-        Log.d(TAG, "run playing?:$mPlaying   paused?: $mPaused")
-        while (mPlaying) {
+        Log.d(TAG, "run playing?:$isPlaying   paused?: $isPaused")
+        while (isPlaying) {
             val frameStartTime = System.currentTimeMillis()
-            if (!mPaused) {
+            if (!isPaused) {
                 update()
                 detectCollisions()
             }
@@ -72,7 +72,7 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
             val timeThisFrame = System.currentTimeMillis() - frameStartTime
 
             if (timeThisFrame > 0) {
-                mCurrentFPS = MILLIS_IN_SECOND / timeThisFrame
+                currentFPS = MILLIS_IN_SECOND / timeThisFrame
             }
         }
     }
@@ -80,83 +80,83 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
     private fun detectCollisions() {
 
         when{
-            RectF.intersects(mBat.mRect, mBall.mRect) -> {
-                mBall.batBounce(mBat.mRect)
-                mBall.increaseVelocity()
-                mScore++
-                mSoundPool.play(mBeepId, 1F, 1F, 0, 0, 1F)
+            RectF.intersects(bat.rect, ball.rect) -> {
+                ball.batBounce(bat.rect)
+                ball.increaseVelocity()
+                score++
+                soundPool.play(beepId, 1F, 1F, 0, 0, 1F)
             }
 
-            mBall.mRect.bottom > mScreenY -> {
-                mBall.bounceOff(Ball.BOUNCE_UP)
-                mTotalLives--
-                mSoundPool.play(mMissId, 1F, 1F,0,0, 1F)
-                if (mTotalLives == 0){
-                    mPaused = true
+            ball.rect.bottom > screenY -> {
+                ball.bounceOff(Ball.BOUNCE_UP)
+                totalLives--
+                soundPool.play(missId, 1F, 1F,0,0, 1F)
+                if (totalLives == 0){
+                    isPaused = true
                     startNewGame()
                 }
             }
 
-            mBall.mRect.top < 0 -> {
-                mBall.bounceOff(Ball.BOUNCE_DOWN)
-                mSoundPool.play(mBoopId, 1F, 1F,0,0, 1F)
+            ball.rect.top < 0 -> {
+                ball.bounceOff(Ball.BOUNCE_DOWN)
+                soundPool.play(boopId, 1F, 1F,0,0, 1F)
             }
 
-            mBall.mRect.left < 0 -> {
-                mBall.bounceOff(Ball.BOUNCE_RIGHT)
-                mSoundPool.play(mBopId, 1F, 1F,0,0, 1F)
+            ball.rect.left < 0 -> {
+                ball.bounceOff(Ball.BOUNCE_RIGHT)
+                soundPool.play(bopId, 1F, 1F,0,0, 1F)
             }
 
-            mBall.mRect.right >= mScreenX -> {
-                mBall.bounceOff(Ball.BOUNCE_LEFT)
-                mSoundPool.play(mBopId, 1F, 1F,0,0, 1F)
+            ball.rect.right >= screenX -> {
+                ball.bounceOff(Ball.BOUNCE_LEFT)
+                soundPool.play(bopId, 1F, 1F,0,0, 1F)
             }
         }
     }
 
     private fun update() {
-        mBall.update(mCurrentFPS)
-        mBat.update(mCurrentFPS)
+        ball.update(currentFPS)
+        bat.update(currentFPS)
     }
 
     private fun draw() {
 
         if (holder.surface.isValid) {
-            if (!mSceneInitialized) {
+            if (!isSceneInitialized) {
                 initialize2D()
                 startNewGame()
-                mSceneInitialized = true
+                isSceneInitialized = true
             }
 
-            mCanvas = holder.lockCanvas()
-            mCanvas.drawColor(Color.argb(255, 26, 128, 182))
-            mPaint.color = Color.WHITE
+            canvas = holder.lockCanvas()
+            canvas.drawColor(Color.argb(255, 26, 128, 182))
+            paint.color = Color.WHITE
 
-            mCanvas.drawRect(mBall.mRect, mPaint)
-            mCanvas.drawRect(mBat.mRect, mPaint)
+            canvas.drawRect(ball.rect, paint)
+            canvas.drawRect(bat.rect, paint)
 
-            mPaint.textSize = mFontSize
-            mCanvas.drawText("Score $mScore   Lives $mTotalLives", mFontMargin, mFontSize, mPaint)
+            paint.textSize = fontSize
+            canvas.drawText("Score $score   Lives $totalLives", fontMargin, fontSize, paint)
             if (DEBUGGING) {
                 printDebuggingText()
             }
-            mSurfaceHolder.unlockCanvasAndPost(mCanvas)
+            surfaceHolder.unlockCanvasAndPost(canvas)
         }
     }
 
     private fun initialize2D(){
-        mScreenX = mSurfaceHolder.surfaceFrame.width()
-        mScreenY = mSurfaceHolder.surfaceFrame.height()
-        mFontSize = mScreenX / 20F
-        mFontMargin = mScreenX / 75F
-        mBall = Ball(mScreenX)
-        mBat = Bat(mScreenX, mScreenY)
+        screenX = surfaceHolder.surfaceFrame.width()
+        screenY = surfaceHolder.surfaceFrame.height()
+        fontSize = screenX / 20F
+        fontMargin = screenX / 75F
+        ball = Ball(screenX)
+        bat = Bat(screenX, screenY)
     }
 
     private fun startNewGame() {
-        mScore = 0
-        mTotalLives = 3
-        mBall.reset(mScreenX, mScreenY)
+        score = 0
+        totalLives = 3
+        ball.reset(screenX, screenY)
         initializeAudio()
     }
 
@@ -166,7 +166,7 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
 
-        mSoundPool = SoundPool.Builder()
+        soundPool = SoundPool.Builder()
             .setMaxStreams(5)
             .setAudioAttributes(audioAttributes)
             .build()
@@ -174,35 +174,35 @@ class PongGame(context: Context) : SurfaceView(context), Runnable {
         try {
             val assetsManager = context.assets
             var fileDescriptor = assetsManager.openFd("beep.ogg")
-            mBeepId = mSoundPool.load(fileDescriptor, 0)
+            beepId = soundPool.load(fileDescriptor, 0)
             fileDescriptor = assetsManager.openFd("boop.ogg")
-            mBoopId = mSoundPool.load(fileDescriptor, 0)
+            boopId = soundPool.load(fileDescriptor, 0)
             fileDescriptor = assetsManager.openFd("bop.ogg")
-            mBopId = mSoundPool.load(fileDescriptor, 0)
+            bopId = soundPool.load(fileDescriptor, 0)
             fileDescriptor = assetsManager.openFd("miss.ogg")
-            mMissId = mSoundPool.load(fileDescriptor, 0)
+            missId = soundPool.load(fileDescriptor, 0)
         } catch (e: IOException) {
             Log.d(TAG, "initializeAudio: Error: $e")
         }
     }
 
     private fun printDebuggingText() {
-        val debugFontSize = mFontSize / 2F
-        mPaint.textSize = debugFontSize
+        val debugFontSize = fontSize / 2F
+        paint.textSize = debugFontSize
         val leftMargin = 150F
         val topMargin = 10F
-        mCanvas.drawText("FPS: $mCurrentFPS", topMargin, leftMargin + debugFontSize, mPaint)
+        canvas.drawText("FPS: $currentFPS", topMargin, leftMargin + debugFontSize, paint)
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         Log.d(TAG, "onTouchEvent: ")
         if (event != null) {
-            mBat.setMovementState(
+            bat.setMovementState(
                 when (event.action.and(MotionEvent.ACTION_MASK)) {
                     MotionEvent.ACTION_DOWN -> {
-                        mPaused = false
-                        if (event.x > (mScreenX / 2)) Bat.RIGHT else Bat.LEFT
+                        isPaused = false
+                        if (event.x > (screenX / 2)) Bat.RIGHT else Bat.LEFT
                     }
                     MotionEvent.ACTION_UP -> Bat.STOPPED
                     else -> null
