@@ -2,32 +2,33 @@ package d.spidchenko.ponggame
 
 import android.graphics.RectF
 import android.util.Log
+import d.spidchenko.ponggame.physics.Vector2d
 import kotlin.math.abs
 
 class Ball(screenX: Int) {
     val rect = RectF()
-    private var xVelocity = 0F
-    private var yVelocity = 0F
+    private val velocity = Vector2d(true)
     private val ballWidth = screenX / 100F
     private val ballHeight = screenX / 100F
 
     fun update(fps: Long) {
-        Log.d(
-            TAG,
-            "updating ball. fps=$fps xVel=$xVelocity yVel=$yVelocity left=${rect.left} right = ${rect.right}"
-        )
-        rect.left += (xVelocity / fps)
-        rect.top += (yVelocity / fps)
+//        Log.d(
+//            TAG,
+//            "updating ball. fps=$fps xVel=$xVelocity yVel=$yVelocity left=${rect.left} right = ${rect.right}"
+//        )
+
+        rect.left += (velocity.x / fps).toFloat()
+        rect.top += (velocity.y / fps).toFloat()
         rect.right = rect.left + ballWidth
         rect.bottom = rect.top + ballHeight
     }
 
     fun bounceOff(direction: Int) {
         when (direction) {
-            BOUNCE_LEFT -> xVelocity = -abs(xVelocity)
-            BOUNCE_RIGHT -> xVelocity = abs(xVelocity)
-            BOUNCE_UP -> yVelocity = -abs(yVelocity)
-            BOUNCE_DOWN -> yVelocity = abs(yVelocity)
+            BOUNCE_LEFT -> velocity.x = -abs(velocity.x)
+            BOUNCE_RIGHT -> velocity.x = abs(velocity.x)
+            BOUNCE_UP -> velocity.y = -abs(velocity.y)
+            BOUNCE_DOWN -> velocity.y = abs(velocity.y)
             else -> throw IllegalArgumentException("Unknown direction")
         }
     }
@@ -39,13 +40,13 @@ class Ball(screenX: Int) {
         rect.right = x / 2F + ballWidth
         rect.bottom = ballHeight
 
-        yVelocity = -(y / 3F)
-        xVelocity = x / 2F
+        velocity.y = -(y / 3.0)
+        velocity.x = x / 2.0
     }
 
     fun increaseVelocity() {
-        xVelocity *= 1.1F
-        yVelocity *= 1.1F
+        velocity.x *= 1.1F
+        velocity.y *= 1.1F
     }
 
     fun batBounce(batPosition: RectF) {
@@ -62,6 +63,9 @@ class Ball(screenX: Int) {
         const val BOUNCE_RIGHT = 2
         const val BOUNCE_UP = 3
         const val BOUNCE_DOWN = 4
+
+        // Gravity const
+        const val G = 9.8
     }
 
 }
