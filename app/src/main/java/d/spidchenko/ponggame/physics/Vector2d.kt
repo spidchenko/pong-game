@@ -295,6 +295,10 @@ class Vector2d {
         }
     }
 
+    fun divide(fac: Long){
+        divide(fac.toDouble())
+    }
+
     fun divide(fac: Double) {
         // TODO Check for zero division
         require(fac != 0.0) { "Factor is 0 - Can't divide by 0" }
@@ -361,7 +365,7 @@ class Vector2d {
         return tempX + tempY
     }
 
-    fun clone(target: Vector2d) {
+    fun cloneFrom(target: Vector2d) {
         if (mutable) {
             r = target.r
             theta = target.theta

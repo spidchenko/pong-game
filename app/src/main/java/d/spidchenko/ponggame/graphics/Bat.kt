@@ -1,8 +1,10 @@
-package d.spidchenko.ponggame
+package d.spidchenko.ponggame.graphics
 
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.RectF
 
-class Bat(private val screenX: Int, screenY: Int) {
+class Bat(private val screenX: Int, screenY: Int): GameObject {
     private val batSpeed = screenX
     private val length = screenX / 8F
     private val height = screenY / 40F
@@ -39,6 +41,10 @@ class Bat(private val screenX: Int, screenY: Int) {
         const val STOPPED = 0
         const val LEFT = 1
         const val RIGHT = 2
+    }
+
+    override fun draw(canvas: Canvas, paint: Paint) {
+        canvas.drawRect(rect, paint)
     }
 
 }
